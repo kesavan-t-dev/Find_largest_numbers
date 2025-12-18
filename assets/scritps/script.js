@@ -31,7 +31,7 @@ function checkNumbers() {
         }
     }
 
-    if (hasInvalid) {
+    if (hasInvalid && input !== ",") {
         showError("Special Character(s) not allowed");
         return;
     }
