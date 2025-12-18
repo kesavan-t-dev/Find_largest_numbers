@@ -9,60 +9,48 @@ function checkNumbers() {
         return;
     }
 
-    let hasLetter = false;
-    let hasInvalid = false;
-    for (let i = 0; i < input.length; i++) {
-        const ch = input[i];
-        const code = ch.charCodeAt(0);
-        if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
-            hasLetter = true;
-            break;
-        }
-        if (
-            !(code >= 48 && code <= 57) &&
-            ch !== "," &&
-            ch !== "." &&
-            ch !== "-" &&
-            ch !== "+" &&
-            ch !== " "
-        ) {
-            hasInvalid = true;
-            break;
-        }
-    }
-
-    if (hasInvalid && input !== ",") {
+    
+    if (!/^[0-9+,\.\-\s]+$/.test(input)) {
         showError("Special Character(s) not allowed");
         return;
     }
 
-    if (hasLetter) {
-        showError("letter(s) not allowed");
+    
+    if (/^[,\.]/.test(input.trim()) || /[,\.]\s*$/.test(input)) {
+        showError("Special Character(s) not allowed");
         return;
     }
 
-    const parts = input.split(",");
-    if (parts.length > 2) {
+    
+    if (/[.,]\s*[.,]/.test(input)) {
+        showError("Special Character(s) not allowed");
+        return;
+    }
+
+    
+    const commaCount = (input.match(/,/g) || []).length;
+    if (commaCount === 0) {
+        showError("Please enter two numbers");
+        return;
+    }
+    if (commaCount > 1) {
         showError("Enter only two numbers");
         return;
     }
 
-    if (parts.length < 2 || parts[0].trim() === "" || parts[1].trim() === "") {
-        showError("Please enter two numbers");
+    const parts = input.split(",");
+    if (parts.length !== 2) {
+        showError("Enter only two numbers");
         return;
     }
 
-    const cleanPart = function(s) {
-        let out = "";
-        for (let j = 0; j < s.length; j++) {
-            const c = s[j];
-            if (c !== " ") out += c;
-        }
-        return out;
-    };
+    const a = parts[0].replace(/\s+/g, "").trim();
+    const b = parts[1].replace(/\s+/g, "").trim();
 
-    const a = cleanPart(parts[0].trim());
-    const b = cleanPart(parts[1].trim());
+    if (a === "" || b === "") {
+        showError("Please enter two numbers");
+        return;
+    }
 
     if (!isValidNumber(a) || !isValidNumber(b)) {
         showError("Invalid number(s)");
