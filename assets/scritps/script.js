@@ -1,56 +1,77 @@
 function checkNumbers() {
-    const input = document.getElementById("user_input").value.trim();
+    const inputRaw = document.getElementById("user_input").value;
     const resultMsg = document.getElementById("result_msg");
 
     resultMsg.classList.add("d-none");
     resultMsg.classList.remove("alert-danger", "alert-success");
-    if (input.length === 0) {
+    
+    if (inputRaw.trim().length === 0) {
         showError("Please enter a number");
         return;
     }
+    let input = inputRaw.trim();
 
-    
-    if (!/^[0-9+,\.\-\s]+$/.test(input)) {
+    let hasLetter = false;
+    let hasSpecial = false;
+   
+    for (let ch of input) {
+        const code = ch.charCodeAt(0);
+
+        if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
+            hasLetter = true;
+        }
+        else if (
+            !(code >= 48 && code <= 57) &&
+            ch !== "," && ch !== "." &&
+            ch !== "+" && ch !== "-" &&
+            ch !== " "
+        ) {
+            hasSpecial = true;
+        }
+    }
+
+    if (hasSpecial) {
         showError("Special Character(s) not allowed");
         return;
     }
 
+    if (hasLetter) {
+        showError("letter(s) not allowed");
+        return;
+    }
     
-    if (/^[,\.]/.test(input.trim()) || /[,\.]\s*$/.test(input)) {
+    if (input.startsWith(",") || input.endsWith(",")) {
         showError("Special Character(s) not allowed");
         return;
     }
+    let normalized = "";
+    let prevComma = false;
 
-    
-    if (/[.,]\s*[.,]/.test(input)) {
-        showError("Special Character(s) not allowed");
-        return;
+    for (let ch of input) {
+        if (ch === ",") {
+            if (!prevComma) {
+                normalized += ",";
+                prevComma = true;
+            }
+        } else {
+            normalized += ch;
+            prevComma = false;
+        }
     }
 
     
-    const commaCount = (input.match(/,/g) || []).length;
-    if (commaCount === 0) {
-        showError("Please enter two numbers");
-        return;
-    }
-    if (commaCount > 1) {
-        showError("Enter only two numbers");
-        return;
-    }
+    normalized = normalized.replace(/\s+/g, "");
 
-    const parts = input.split(",");
+    const parts = normalized.split(",");
+
+    
     if (parts.length !== 2) {
         showError("Enter only two numbers");
         return;
     }
 
-    const a = parts[0].replace(/\s+/g, "").trim();
-    const b = parts[1].replace(/\s+/g, "").trim();
-
-    if (a === "" || b === "") {
-        showError("Please enter two numbers");
-        return;
-    }
+    const a = parts[0];
+    const b = parts[1];
 
     if (!isValidNumber(a) || !isValidNumber(b)) {
         showError("Invalid number(s)");
@@ -60,46 +81,43 @@ function checkNumbers() {
     const num1 = Number(a);
     const num2 = Number(b);
 
-    if (isNaN(num1) || isNaN(num2)) {
-        showError("Invalid number(s)");
-        return;
-    }
-
-    if (num1 === num2) {
-        showError("both numbers are same");
-        return;
-    }
-
     const largest = num1 > num2 ? num1 : num2;
+
     resultMsg.innerText = `${largest} is larger`;
     resultMsg.classList.remove("d-none");
     resultMsg.classList.add("alert-success");
 }
 
 function isValidNumber(value) {
-        if (value.length === 0) return false;
-        let dotCount = 0;
-        let hasDigit = false;
-        for (let i = 0; i < value.length; i++) {
-                const ch = value[i];
-                if (ch >= "0" && ch <= "9") {
-                    hasDigit = true;
-                    continue;
-                }
-                if (ch === ".") {
-                    dotCount++;
-                    if (dotCount > 1) return false;
-                    continue;
-                }
-                if (ch === "+" || ch === "-") {
-                    if (i !== 0) return false;
-                    continue;
-                }
-                return false;
+    let dotCount = 0;
+    let signCount = 0;
+    let hasDigit = false;
+
+    for (let i = 0; i < value.length; i++) {
+        const ch = value[i];
+
+        if (ch >= "0" && ch <= "9") {
+            hasDigit = true;
+            continue;
         }
-            if (!hasDigit) return false;
-            if (value === "+" || value === "-" || value === ".") return false;
-            return true;
+
+        if (ch === ".") {
+            dotCount++;
+            if (dotCount > 1) return false;
+            continue;
+        }
+
+        if (ch === "+" || ch === "-") {
+            if (i !== 0) return false;
+            signCount++;
+            if (signCount > 1) return false;
+            continue;
+        }
+
+        return false;
+    }
+
+    return hasDigit;
 }
 
 function showError(message) {
