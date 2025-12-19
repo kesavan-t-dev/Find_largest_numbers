@@ -78,8 +78,14 @@ function checkNumbers() {
         return;
     }
 
+
     const num1 = Number(a);
     const num2 = Number(b);
+
+    if (num1 === num2) {
+        showError("both numbers are same");
+        return;
+    }
 
     const largest = num1 > num2 ? num1 : num2;
 
