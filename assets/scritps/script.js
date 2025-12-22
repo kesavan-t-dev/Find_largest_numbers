@@ -4,16 +4,19 @@ function check_numbers() {
 
     resultMsg.classList.add("d-none");
     resultMsg.classList.remove("alert-danger", "alert-success");
+
+    let hasLetter = false;
+    let hasSpecial = false;
     
     if (inputRaw.trim().length === 0) {
         show_error("Please enter a number");
         return;
     }
     let input = inputRaw.trim();
+    
+    let normalized = "";
+    let prevComma = false;
 
-    let hasLetter = false;
-    let hasSpecial = false;
-   
     for (let ch of input) {      
         const code = ch.charCodeAt(0);
 
@@ -33,19 +36,14 @@ function check_numbers() {
     if (hasSpecial) {
         show_error("Special Character(s) not allowed");
         return;
-    }
-
-    if (hasLetter) {
+    } else if (hasLetter) {
         show_error("letter(s) not allowed");
         return;
-    }
-    
-    if (input.startsWith(",") || input.endsWith(",")) {
+    } else if (input.startsWith(",") || input.endsWith(",")) {
         show_error("Special Character(s) not allowed");
         return;
     }
-    let normalized = "";
-    let prevComma = false;
+
 
     for (let ch of input) {
         if (ch === ",") {
